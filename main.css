@@ -1,0 +1,71 @@
+.container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.timer {
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.tile {
+  background-image: url('tiles.png');
+  background-repeat: no-repeat;
+  width: 100px;
+  height: 100px;
+  display: inline-block;
+}
+
+.tile__cross {
+  background-position: 0px 0px;
+}
+
+.tile__star {
+  background-position: -100px 0px;
+}
+
+.tile__brackets {
+  background-position: -200px 0px;
+}
+
+.tile__shield {
+  background-position: 0px -100px;
+}
+
+.tile__heart {
+  background-position: -100px -100px;
+}
+
+.tile__moon {
+  background-position: -200px -100px;
+}
+
+.tile__arrow {
+  background-position: 0px -200px;
+}
+
+.tile__thunder {
+  background-position: -100px -200px;
+}
+
+.tile__moustache {
+  background-position: -200px -200px;
+}
+
+.tile__plus {
+  background-position: 0px -300px;
+}
+
+.tile__check {
+  background-position: -100px -300px;
+}
+
+.tile__cloud {
+  background-position: -200px -300px;
+}
+
+.tile__hide {
+  background-position: 0px -400px;
+}
