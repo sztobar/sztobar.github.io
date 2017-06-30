@@ -37,6 +37,7 @@ type alias Model =
     , tempShown2 : Maybe (Int, Int)
     , state : State
     , time : Int
+    , paired: Int
     }
 
 init : (Model, Cmd Msg)
@@ -59,6 +60,7 @@ init =
     , tempShown2 = Nothing
     , state = StartScreen
     , time = 0
+    , paired = 0
     }, Cmd.none)
 
 subscriptions : Model -> Sub Msg
@@ -81,11 +83,11 @@ port newBoard: (List (Int, Int) -> msg) -> Sub msg
 
 main =
   Html.program
-      { init = init
-      , view = view
-      , update = update
-      , subscriptions = subscriptions
-      }
+    { init = init
+    , view = view
+    , update = update
+    , subscriptions = subscriptions
+    }
 
 type Msg
   = Click (Int, Int)
@@ -104,6 +106,7 @@ update msg model =
       ({ model
          | tiles = createBoard source
          , time = 10
+         , paired = 0
          , state = Preview
        }, Cmd.none)
     Tick time ->
@@ -168,34 +171,48 @@ clickTile : (Int, Int) -> Model -> Model
 clickTile pos model =
   case model.state of
     Board ->
-      case model.tempShown1 of
-        Nothing ->
-          { model
-            | tempShown1 = Just pos
-            , tiles = showTile pos model.tiles
-          }
-        Just tempPos1 ->
-          case model.tempShown2 of
-            Nothing ->
-              if (isSameSymbol tempPos1 pos model.tiles) then
+      if Dict.get pos model.tiles
+        |> Maybe.map .shown
+        |> Maybe.withDefault True then
+        model
+      else
+        case model.tempShown1 of
+          Nothing ->
+            { model
+              | tempShown1 = Just pos
+              , tiles = showTile pos model.tiles
+            }
+          Just tempPos1 ->
+            case model.tempShown2 of
+              Nothing ->
+                if (isSameSymbol tempPos1 pos model.tiles) then
+                  if model.paired == 11 then
+                    { model
+                      | tempShown1 = Nothing
+                      , tiles = hideAllTiles model.tiles
+                      , state = GameOver
+                      , paired = 0
+                    }
+                  else
+                    { model
+                      | tempShown1 = Nothing
+                      , tiles = showTile pos model.tiles
+                      , paired = model.paired + 1
+                    }
+                else
+                  { model
+                    | tempShown2 = Just pos
+                    , tiles = showTile pos model.tiles
+                  }
+              Just tempPos2 ->
                 { model
-                  | tempShown1 = Nothing
-                  , tiles = showTile pos model.tiles
+                  | tempShown1 = Just pos
+                  , tempShown2 = Nothing
+                  , tiles = model.tiles
+                      |> hideTile tempPos1
+                      |> hideTile tempPos2
+                      |> showTile pos
                 }
-              else
-                { model
-                  | tempShown2 = Just pos
-                  , tiles = showTile pos model.tiles
-                }
-            Just tempPos2 ->
-              { model
-                | tempShown1 = Just pos
-                , tempShown2 = Nothing
-                , tiles = model.tiles
-                    |> hideTile tempPos1
-                    |> hideTile tempPos2
-                    |> showTile pos
-              }
     _ ->
       model
 
@@ -213,7 +230,6 @@ isSameSymbol pos1 pos2 tiles =
 showTile : (Int, Int) -> Dict (Int, Int) Tile -> Dict (Int, Int) Tile
 showTile pos tiles =
   Dict.update pos (\m ->
-    --Maybe.map (\tile -> { tile | shown = True }) m
     case m of
       Just tile ->
         Just { tile | shown = True }
@@ -252,7 +268,6 @@ view model =
     ) [0, 1, 2, 3, 4, 5])
     , viewState model
     ]
-
 
 viewTile : (Int, Int) -> Dict (Int, Int) Tile -> Html Msg
 viewTile pos tiles =
@@ -310,7 +325,7 @@ viewGameOverScreen model =
       [ div [ class "header" ] [ text "Game Over" ]
       , div [ class "subheader" ] [ text "Your time is: "]
       , div [ class "subheader__time" ] [ text (toString model.time) ]
-      , div [ class "button"
+      , button [ class "start-button"
             , onClick StartGame
             ]
         [ text "Start new game" ]

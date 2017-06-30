@@ -8767,53 +8767,6 @@ var _user$project$Board$isSameSymbol = F3(
 			m2);
 		return A2(_elm_lang$core$Maybe$withDefault, false, result);
 	});
-var _user$project$Board$clickTile = F2(
-	function (pos, model) {
-		var _p4 = model.state;
-		if (_p4.ctor === 'Board') {
-			var _p5 = model.tempShown1;
-			if (_p5.ctor === 'Nothing') {
-				return _elm_lang$core$Native_Utils.update(
-					model,
-					{
-						tempShown1: _elm_lang$core$Maybe$Just(pos),
-						tiles: A2(_user$project$Board$showTile, pos, model.tiles)
-					});
-			} else {
-				var _p7 = _p5._0;
-				var _p6 = model.tempShown2;
-				if (_p6.ctor === 'Nothing') {
-					return A3(_user$project$Board$isSameSymbol, _p7, pos, model.tiles) ? _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							tempShown1: _elm_lang$core$Maybe$Nothing,
-							tiles: A2(_user$project$Board$showTile, pos, model.tiles)
-						}) : _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							tempShown2: _elm_lang$core$Maybe$Just(pos),
-							tiles: A2(_user$project$Board$showTile, pos, model.tiles)
-						});
-				} else {
-					return _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							tempShown1: _elm_lang$core$Maybe$Just(pos),
-							tempShown2: _elm_lang$core$Maybe$Nothing,
-							tiles: A2(
-								_user$project$Board$showTile,
-								pos,
-								A2(
-									_user$project$Board$hideTile,
-									_p6._0,
-									A2(_user$project$Board$hideTile, _p7, model.tiles)))
-						});
-				}
-			}
-		} else {
-			return model;
-		}
-	});
 var _user$project$Board$newTile = function (symbol) {
 	return {symbol: symbol, shown: true};
 };
@@ -8841,9 +8794,9 @@ var _user$project$Board$Tile = F2(
 	function (a, b) {
 		return {shown: a, symbol: b};
 	});
-var _user$project$Board$Model = F5(
-	function (a, b, c, d, e) {
-		return {tiles: a, tempShown1: b, tempShown2: c, state: d, time: e};
+var _user$project$Board$Model = F6(
+	function (a, b, c, d, e, f) {
+		return {tiles: a, tempShown1: b, tempShown2: c, state: d, time: e, paired: f};
 	});
 var _user$project$Board$Cloud = {ctor: 'Cloud'};
 var _user$project$Board$Check = {ctor: 'Check'};
@@ -8875,6 +8828,73 @@ var _user$project$Board$createBoard = function (source) {
 			source));
 };
 var _user$project$Board$GameOver = {ctor: 'GameOver'};
+var _user$project$Board$clickTile = F2(
+	function (pos, model) {
+		var _p4 = model.state;
+		if (_p4.ctor === 'Board') {
+			if (A2(
+				_elm_lang$core$Maybe$withDefault,
+				true,
+				A2(
+					_elm_lang$core$Maybe$map,
+					function (_) {
+						return _.shown;
+					},
+					A2(_elm_lang$core$Dict$get, pos, model.tiles)))) {
+				return model;
+			} else {
+				var _p5 = model.tempShown1;
+				if (_p5.ctor === 'Nothing') {
+					return _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							tempShown1: _elm_lang$core$Maybe$Just(pos),
+							tiles: A2(_user$project$Board$showTile, pos, model.tiles)
+						});
+				} else {
+					var _p7 = _p5._0;
+					var _p6 = model.tempShown2;
+					if (_p6.ctor === 'Nothing') {
+						return A3(_user$project$Board$isSameSymbol, _p7, pos, model.tiles) ? (_elm_lang$core$Native_Utils.eq(model.paired, 11) ? _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								tempShown1: _elm_lang$core$Maybe$Nothing,
+								tiles: _user$project$Board$hideAllTiles(model.tiles),
+								state: _user$project$Board$GameOver,
+								paired: 0
+							}) : _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								tempShown1: _elm_lang$core$Maybe$Nothing,
+								tiles: A2(_user$project$Board$showTile, pos, model.tiles),
+								paired: model.paired + 1
+							})) : _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								tempShown2: _elm_lang$core$Maybe$Just(pos),
+								tiles: A2(_user$project$Board$showTile, pos, model.tiles)
+							});
+					} else {
+						return _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								tempShown1: _elm_lang$core$Maybe$Just(pos),
+								tempShown2: _elm_lang$core$Maybe$Nothing,
+								tiles: A2(
+									_user$project$Board$showTile,
+									pos,
+									A2(
+										_user$project$Board$hideTile,
+										_p6._0,
+										A2(_user$project$Board$hideTile, _p7, model.tiles)))
+							});
+					}
+				}
+			}
+		} else {
+			return model;
+		}
+	});
 var _user$project$Board$Board = {ctor: 'Board'};
 var _user$project$Board$tickTime = function (model) {
 	var _p8 = model.state;
@@ -8922,6 +8942,7 @@ var _user$project$Board$update = F2(
 						{
 							tiles: _user$project$Board$createBoard(_p9._0),
 							time: 10,
+							paired: 0,
 							state: _user$project$Board$Preview
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -9135,7 +9156,8 @@ var _user$project$Board$init = {
 		tempShown1: _elm_lang$core$Maybe$Nothing,
 		tempShown2: _elm_lang$core$Maybe$Nothing,
 		state: _user$project$Board$StartScreen,
-		time: 0
+		time: 0,
+		paired: 0
 	},
 	_1: _elm_lang$core$Platform_Cmd$none
 };
@@ -9255,10 +9277,10 @@ var _user$project$Board$viewGameOverScreen = function (model) {
 					_1: {
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$div,
+							_elm_lang$html$Html$button,
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('button'),
+								_0: _elm_lang$html$Html_Attributes$class('start-button'),
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$html$Html_Events$onClick(_user$project$Board$StartGame),

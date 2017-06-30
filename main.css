@@ -31,6 +31,20 @@
   padding-bottom: 50px;
 }
 
+.subheader {
+  width: 100%;
+  font-size: 24px;
+  text-align: center;
+  padding-bottom: 20px;
+}
+
+.subheader__time {
+  width: 100%;
+  font-size: 24px;
+  text-align: center;
+  padding-bottom: 50px;
+}
+
 .start-button {
   margin: 0 auto;
   display: block;
@@ -114,6 +128,14 @@
 
   .header {
     font-size: 72px;
+  }
+
+  .subheader {
+    font-size: 64px;
+  }
+
+  .subheader__time {
+    font-size: 64px;
   }
 
   .start-button {
